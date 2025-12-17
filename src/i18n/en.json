@@ -1,0 +1,31 @@
+{
+  "hero": {
+    "title": "Modern & minimalistic wishlist platform crafted for beautiful gifting.",
+    "subtitle": "Discover curated gifts, add your own wishes, share with friends and avoid duplicates forever.",
+    "cta": "Create Wishlist"
+  },
+  "nav": {
+    "explore": "Explore",
+    "wishlists": "Wishlists",
+    "ideas": "Ideas",
+    "signup": "Sign Up"
+  },
+  "sidebar": {
+    "title": "Categories",
+    "travel": "Travel",
+    "experiences": "Experiences",
+    "restaurants": "Restaurants",
+    "beauty": "Beauty",
+    "home": "Home & Décor",
+    "hobbies": "Hobbies"
+  },
+  "footer": {
+    "about": "About",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact",
+    "tagline": "Designed for thoughtful gifting"
+  
+  }
+
+}

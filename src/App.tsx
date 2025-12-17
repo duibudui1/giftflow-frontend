@@ -8,46 +8,49 @@ import PublicWishlistPage from "./pages/PublicWishlistPage";
 import SecretSantaPage from "./pages/SecretSantaPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import ProtectedRoute from "./components/layout/ProtectedRoute";
+import ExploreCategoryPage from "./pages/ExploreCategoryPage";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
+    <>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/explore/:category" element={<ExploreCategoryPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
 
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
+        <Route
+          path="/wishlists"
+          element={
+            <ProtectedRoute>
+              <WishlistsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/wishlists"
-        element={
-          <ProtectedRoute>
-            <WishlistsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/wishlist/:id"
+          element={
+            <ProtectedRoute>
+              <WishlistDetailsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/wishlist/:id"
-        element={
-          <ProtectedRoute>
-            <WishlistDetailsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route path="/w/:slug" element={<PublicWishlistPage />} />
 
-      <Route path="/w/:slug" element={<PublicWishlistPage />} />
+        <Route
+          path="/secret-santa"
+          element={
+            <ProtectedRoute>
+              <SecretSantaPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/secret-santa"
-        element={
-          <ProtectedRoute>
-            <SecretSantaPage />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>  
   );
 }
 
