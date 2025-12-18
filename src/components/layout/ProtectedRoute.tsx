@@ -1,17 +1,22 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import type { ReactElement } from "react";
+import { type ReactNode } from "react";
 
-type ProtectedRouteProps = {
-  children: ReactElement;
-};
 
-export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user } = useAuth();
+export default function ProtectedRoute({ children }: {children: ReactNode}) {
+  
+  const { isAuthenticated, loading} = useAuth();
+  const location = useLocation();
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  if (loading) {
+    return <div>Loading...</div>;
   }
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{from: location}} />
+  }
+    // if (!user) {
+    //   return <Navigate to="/login" replace />;
+    // }
 
   return children;
 }

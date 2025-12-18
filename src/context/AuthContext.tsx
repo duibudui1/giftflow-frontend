@@ -1,27 +1,32 @@
-/* eslint-disable react-refresh/only-export-components */
+import { apiLogin, apiRegister, apiMe } from "../api/authApi";
 
 
-import {
+import React, {
   createContext,
   useContext,
+  useEffect,
   useState,
   type ReactNode,
 } from "react";
 
-type User = {
-  id: string;
+
+type RegisterData = {
+  name: string;
   email: string;
+  password: string;
 };
 
 type AuthContextType = {
-  user: User | null;
-  token: string | null;
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
+  register: (data: RegisterData) => Promise<void>;
   logout: () => void;
+  loading: boolean;
+  error: string | null;
+  isAuthenticated: boolean;
 };
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+const AuthContext = createContext<AuthContextType | null>(null);
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
@@ -31,57 +36,68 @@ export function useAuth() {
   return ctx;
 }
 
-type AuthProviderProps = {
-  children: ReactNode;
-};
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [token, setToken] = useState<string | null>(() => {
-    return localStorage.getItem("token");
-  });
+export function AuthProvider({ children }: {children: ReactNode}) {
 
-  const [user, setUser] = useState<User | null>(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
-  });
+  
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  async function checkAuth() {
+    try {
+      await apiMe();
+      setIsAuthenticated(true);
+    } catch {
+      setIsAuthenticated(false);
+    } 
+  }
+
+  useEffect(() => {
+    checkAuth().finally(()=> setLoading(false));
+  }, []);
+  
 
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async function login(email: string, password: string) {
-    // TODO: заменить на реальный запрос к backend
-    // временный фейковый login для разработки UI:
-    const fakeResponse = {
-      token: "fake-jwt-token",
-      user: { id: "1", email },
-    };
 
-    // здесь потом будет await authService.login(email, password);
-    setToken(fakeResponse.token);
-    setUser(fakeResponse.user);
-    localStorage.setItem("token", fakeResponse.token);
-    localStorage.setItem("user", JSON.stringify(fakeResponse.user));
+    setLoading(true);
+    setError(null);
+
+    try {
+      await apiLogin(email, password);
+      await checkAuth(); // спрашиваем /me
+    } catch (err) {
+      setError("Invalid email or password");
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+}
+
+  async function register(data: RegisterData) {
+  setLoading(true);
+  setError(null);
+
+  try {
+    await apiRegister(data);
+    await checkAuth();
+  } catch (err) {
+    setError("Registration failed");
+    throw err;
+  } finally {
+    setLoading(false);
   }
+}
 
-  async function register(email: string, password: string) {
-    // TODO: реальный запрос на backend
-    // пока просто вызываем login сразу
-    await login(email, password);
-  }
+  async function logout() {
+    await fetch(`${import.meta.env.VITE_API_URL}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
 
-  function logout() {
-    setUser(null);
-    setToken(null);
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
-  }
+    setIsAuthenticated(false);
+}
 
-  const value: AuthContextType = {
-    user,
-    token,
-    login,
-    register,
-    logout,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{login, register, logout, loading, error, isAuthenticated}}>{children}</AuthContext.Provider>;
 }
